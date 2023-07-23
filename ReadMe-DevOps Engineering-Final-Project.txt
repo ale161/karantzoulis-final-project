@@ -115,10 +115,21 @@ latest: digest: sha256:65c51f0b05c381959531270919ad6dd9581ae692e074a6787e9ca8d90
 
 
 Βήμα 4
-ip: 164.90.173.194
-
+Digital Ocean
+ip: 134.209.241.242
 
 
 
 Βήμα 5
+
+Το test και το build δουλεύουν κανονικά
+Το deploy με ταλαιπώρησε (δεν μπορούσα να εγγραφώ στο digitalocean αρχικά και ξεκίνησα με google cloud και μετά δεν δέχτηκε ποτέ το ssh) και δεν το κατάφερα παίρνοντας το παρακάτω log
+$ chmod 400 $SSH_KEY
+$ ssh -o StrictHostKeyChecking=no -i $SSH_KEY root@134.209.241.242 " docker login -u $REGISTRY_USER -p $REGISTRY_PASS && docker ps -aq | xargs -r docker stop | xargs -r docker rm && docker run -d -p 5000:5000 $IMAGE_NAME:$IMAGE_TAG"
+Warning: Permanently added '134.209.241.242' (ED25519) to the list of known hosts.
+Load key "/builds/devops-test8805629/karantzoulis-final-project.tmp/SSH_KEY": error in libcrypto
+root@134.209.241.242: Permission denied (publickey).
+Cleaning up project directory and file based variables
+00:00
+ERROR: Job failed: exit code 1
 
