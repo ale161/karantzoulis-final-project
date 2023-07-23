@@ -12,6 +12,7 @@ DevOps Engineering: Πρακτικές ανάπτυξης λογισμικού �
 
 Βήμα 2
 https://github.com/ale161/karantzoulis-final-project
+https://gitlab.com/devops-test8805629/karantzoulis-final-project
 
 Βήμα 3
 Log απο εκτέλεση
@@ -74,10 +75,49 @@ ale161@NubisVM:~/NubisPlace/karantzoulis-final-project$ sudo docker run -p 5000:
 [2023-07-21 18:25:32 +0000] [6] [INFO] Booting worker with pid: 6
 
 
+ale161@NubisVM:~/NubisPlace/karantzoulis-final-project$ sudo docker tag python-demo:latest ale161/karantzoulis-final-project:latest
+[sudo] password for ale161: 
+ale161@NubisVM:~/NubisPlace/karantzoulis-final-project$ sudo docker push ale161/karantzoulis-final-project:latest
+The push refers to repository [docker.io/ale161/karantzoulis-final-project]
+6e4b740761f8: Preparing 
+848e5d9a500f: Preparing 
+d93ac100f065: Preparing 
+2bb5301557b3: Preparing 
+39bad110c05f: Preparing 
+067ea27560c1: Waiting 
+7fb1037e08b3: Waiting 
+14cbeede8d6e: Waiting 
+ae2d55769c5e: Waiting 
+e2ef8a51359d: Waiting 
+denied: requested access to the resource is denied
+
+ale161@NubisVM:~/NubisPlace/karantzoulis-final-project$ sudo docker login -u ale161
+Password: 
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+
+ale161@NubisVM:~/NubisPlace/karantzoulis-final-project$ sudo docker push ale161/karantzoulis-final-project:latest
+The push refers to repository [docker.io/ale161/karantzoulis-final-project]
+6e4b740761f8: Pushed 
+848e5d9a500f: Pushed 
+d93ac100f065: Pushed 
+2bb5301557b3: Pushed 
+39bad110c05f: Pushed 
+067ea27560c1: Mounted from library/python 
+7fb1037e08b3: Mounted from library/python 
+14cbeede8d6e: Mounted from library/python 
+ae2d55769c5e: Mounted from library/python 
+e2ef8a51359d: Mounted from library/python 
+latest: digest: sha256:65c51f0b05c381959531270919ad6dd9581ae692e074a6787e9ca8d90329baa0 size: 2410
+
 
 Βήμα 4
 Google Cloud γτ το Digital Ocean δεν με ενεκτρινε
 ip: 34.116.214.152
+
 
 
 
