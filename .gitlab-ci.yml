@@ -1,5 +1,5 @@
 variables:
-    IMAGE_NAME: kokkinisd/demo-app
+    IMAGE_NAME: ale161/karantzoulis-final-project
     IMAGE_TAG: python-app-1.0
 
 stages:
