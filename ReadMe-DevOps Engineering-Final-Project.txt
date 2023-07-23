@@ -115,8 +115,7 @@ latest: digest: sha256:65c51f0b05c381959531270919ad6dd9581ae692e074a6787e9ca8d90
 
 
 Βήμα 4
-Google Cloud γτ το Digital Ocean δεν με ενεκτρινε
-ip: 34.116.214.152
+ip: 164.90.173.194
 
 
 
