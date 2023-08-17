@@ -31,10 +31,13 @@ build_image:
 deploy:
     stage: deploy
     before_script:
-        - chmod 400 $SSH_KEY
+        - eval $(ssh-agent -s)      # Start SSH agent
+        - echo "$SSH_PASSPHRASE" | ssh-add $SSH_KEY  # Add the key using the passphrase
+    after_script:
+        - ssh-agent -k             # Stop SSH agent
     script:
         - echo "Logging in to the remote server..."
-        - ssh -v -o StrictHostKeyChecking=no -i $SSH_KEY root@134.209.241.242 "docker login -u $REGISTRY_USER -p $REGISTRY_PASS"
+        - ssh -o StrictHostKeyChecking=no root@134.209.241.242 "docker login -u $REGISTRY_USER -p $REGISTRY_PASS"
         - echo "Stopping and removing existing containers..."
         - ssh -o StrictHostKeyChecking=no -i $SSH_KEY root@134.209.241.242 "docker ps -aq | xargs -r docker stop | xargs -r docker rm"
         - echo "Pulling and running the new Docker image..."
