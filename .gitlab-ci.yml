@@ -31,6 +31,7 @@ build_image:
 deploy:
     stage: deploy
     before_script:
+        - chmod 400 $SSH_KEY
         - eval $(ssh-agent -s)      # Start SSH agent
         - echo "$SSH_PASSPHRASE" | ssh-add $SSH_KEY  # Add the key using the passphrase
     after_script:
