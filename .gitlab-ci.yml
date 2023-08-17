@@ -31,7 +31,14 @@ build_image:
 deploy:
     stage: deploy
     before_script:
-        - chmod 600 $SSH_KEY
+        - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
+        - eval $(ssh-agent -s)
+        - echo "$SSH_KEY" | tr -d '\r' | ssh-add -
+        - mkdir -p ~/.ssh
+        - chmod 700 ~/.ssh
+        - ssh-keyscan 134.209.241.242 >> ~/.ssh/known_hosts
+        - chmod 644 ~/.ssh/known_hosts
+
     script:
         - echo "Logging in to the remote server..."
         - ssh -v -o StrictHostKeyChecking=no -i $SSH_KEY root@134.209.241.242 "docker login -u $REGISTRY_USER -p $REGISTRY_PASS"
