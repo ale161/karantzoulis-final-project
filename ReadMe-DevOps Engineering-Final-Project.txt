@@ -117,19 +117,361 @@ latest: digest: sha256:65c51f0b05c381959531270919ad6dd9581ae692e074a6787e9ca8d90
 Βήμα 4
 Digital Ocean
 ip: 134.209.241.242
-
+App: http://134.209.241.242:5000/
 
 
 Βήμα 5
 
 Το test και το build δουλεύουν κανονικά
-Το deploy με ταλαιπώρησε (δεν μπορούσα να εγγραφώ στο digitalocean αρχικά και ξεκίνησα με google cloud και μετά δεν δέχτηκε ποτέ το ssh) και δεν το κατάφερα παίρνοντας το παρακάτω log
-$ chmod 400 $SSH_KEY
-$ ssh -o StrictHostKeyChecking=no -i $SSH_KEY root@134.209.241.242 " docker login -u $REGISTRY_USER -p $REGISTRY_PASS && docker ps -aq | xargs -r docker stop | xargs -r docker rm && docker run -d -p 5000:5000 $IMAGE_NAME:$IMAGE_TAG"
-Warning: Permanently added '134.209.241.242' (ED25519) to the list of known hosts.
-Load key "/builds/devops-test8805629/karantzoulis-final-project.tmp/SSH_KEY": error in libcrypto
-root@134.209.241.242: Permission denied (publickey).
+Το deploy με ταλαιπώρησε (δεν μπορούσα να εγγραφώ στο digitalocean αρχικά και ξεκίνησα με google cloud και μετά δεν δεχόταν το ssh).
+Μετά από μεγάλη ταλαιπωρία και μετά από την τελευταία παράταση που μας δώσατε κατάφερα να ολοκληρώσω την εργασία και να πετύχω και το deploy.
+Για να καταφέρω την επικοινωνία ακολούθησα τις παρακάτω οδηγίες
+https://docs.gitlab.com/ee/ci/ssh_keys/
+
+Αναλυτικό Log από το deploy
+
+$ which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )
+/usr/bin/ssh-agent
+$ eval $(ssh-agent -s)
+Agent pid 13
+$ echo "$SSH_KEY" | tr -d '\r' | ssh-add -
+Identity added: (stdin) (ale.black161+nopass@gmail.com)
+$ mkdir -p ~/.ssh
+$ chmod 700 ~/.ssh
+$ ssh-keyscan 134.209.241.242 >> ~/.ssh/known_hosts
+# 134.209.241.242:22 SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.3
+# 134.209.241.242:22 SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.3
+# 134.209.241.242:22 SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.3
+# 134.209.241.242:22 SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.3
+# 134.209.241.242:22 SSH-2.0-OpenSSH_8.9p1 Ubuntu-3ubuntu0.3
+$ chmod 644 ~/.ssh/known_hosts
+$ echo "Logging in to the remote server..."
+Logging in to the remote server...
+$ ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@134.209.241.242 "docker login -u $REGISTRY_USER -p $REGISTRY_PASS"
+Warning: Identity file /root/.ssh/id_rsa not accessible: No such file or directory.
+OpenSSH_9.2p1 Debian-2, OpenSSL 3.0.9 30 May 2023
+debug1: Reading configuration data /etc/ssh/ssh_config
+debug1: /etc/ssh/ssh_config line 19: include /etc/ssh/ssh_config.d/*.conf matched no files
+debug1: /etc/ssh/ssh_config line 21: Applying options for *
+debug1: Connecting to 134.209.241.242 [134.209.241.242] port 22.
+debug1: Connection established.
+debug1: identity file /root/.ssh/id_rsa type -1
+debug1: identity file /root/.ssh/id_rsa-cert type -1
+debug1: identity file /root/.ssh/id_ecdsa type -1
+debug1: identity file /root/.ssh/id_ecdsa-cert type -1
+debug1: identity file /root/.ssh/id_ecdsa_sk type -1
+debug1: identity file /root/.ssh/id_ecdsa_sk-cert type -1
+debug1: identity file /root/.ssh/id_ed25519 type -1
+debug1: identity file /root/.ssh/id_ed25519-cert type -1
+debug1: identity file /root/.ssh/id_ed25519_sk type -1
+debug1: identity file /root/.ssh/id_ed25519_sk-cert type -1
+debug1: identity file /root/.ssh/id_xmss type -1
+debug1: identity file /root/.ssh/id_xmss-cert type -1
+debug1: identity file /root/.ssh/id_dsa type -1
+debug1: identity file /root/.ssh/id_dsa-cert type -1
+debug1: Local version string SSH-2.0-OpenSSH_9.2p1 Debian-2
+debug1: Remote protocol version 2.0, remote software version OpenSSH_8.9p1 Ubuntu-3ubuntu0.3
+debug1: compat_banner: match: OpenSSH_8.9p1 Ubuntu-3ubuntu0.3 pat OpenSSH* compat 0x04000000
+debug1: Authenticating to 134.209.241.242:22 as 'root'
+debug1: load_hostkeys: fopen /root/.ssh/known_hosts2: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts2: No such file or directory
+debug1: SSH2_MSG_KEXINIT sent
+debug1: SSH2_MSG_KEXINIT received
+debug1: kex: algorithm: sntrup761x25519-sha512@openssh.com
+debug1: kex: host key algorithm: ssh-ed25519
+debug1: kex: server->client cipher: chacha20-poly1305@openssh.com MAC: <implicit> compression: none
+debug1: kex: client->server cipher: chacha20-poly1305@openssh.com MAC: <implicit> compression: none
+debug1: expecting SSH2_MSG_KEX_ECDH_REPLY
+debug1: SSH2_MSG_KEX_ECDH_REPLY received
+debug1: Server host key: ssh-ed25519 SHA256:ogCmVplh6b/KT7343bbA2lWxIdYy4GjLskLPWU/6AjM
+debug1: load_hostkeys: fopen /root/.ssh/known_hosts2: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts2: No such file or directory
+debug1: Host '134.209.241.242' is known and matches the ED25519 host key.
+debug1: Found key in /root/.ssh/known_hosts:3
+debug1: rekey out after 134217728 blocks
+debug1: SSH2_MSG_NEWKEYS sent
+debug1: expecting SSH2_MSG_NEWKEYS
+debug1: SSH2_MSG_NEWKEYS received
+debug1: rekey in after 134217728 blocks
+debug1: get_agent_identities: bound agent to hostkey
+debug1: get_agent_identities: agent returned 1 keys
+debug1: Will attempt key: ale.black161+nopass@gmail.com ED25519 SHA256:DCqfPbSLiL6NJ8qzoeTToiqkoRJ/J1fAt5CnOMB30cQ agent
+debug1: Will attempt key: /root/.ssh/id_rsa 
+debug1: Will attempt key: /root/.ssh/id_ecdsa 
+debug1: Will attempt key: /root/.ssh/id_ecdsa_sk 
+debug1: Will attempt key: /root/.ssh/id_ed25519 
+debug1: Will attempt key: /root/.ssh/id_ed25519_sk 
+debug1: Will attempt key: /root/.ssh/id_xmss 
+debug1: Will attempt key: /root/.ssh/id_dsa 
+debug1: SSH2_MSG_EXT_INFO received
+debug1: kex_input_ext_info: server-sig-algs=<ssh-ed25519,sk-ssh-ed25519@openssh.com,ssh-rsa,rsa-sha2-256,rsa-sha2-512,ssh-dss,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ecdsa-sha2-nistp256@openssh.com,webauthn-sk-ecdsa-sha2-nistp256@openssh.com>
+debug1: kex_input_ext_info: publickey-hostbound@openssh.com=<0>
+debug1: SSH2_MSG_SERVICE_ACCEPT received
+debug1: Authentications that can continue: publickey
+debug1: Next authentication method: publickey
+debug1: Offering public key: ale.black161+nopass@gmail.com ED25519 SHA256:DCqfPbSLiL6NJ8qzoeTToiqkoRJ/J1fAt5CnOMB30cQ agent
+debug1: Server accepts key: ale.black161+nopass@gmail.com ED25519 SHA256:DCqfPbSLiL6NJ8qzoeTToiqkoRJ/J1fAt5CnOMB30cQ agent
+Authenticated to 134.209.241.242 ([134.209.241.242]:22) using "publickey".
+debug1: channel 0: new session [client-session] (inactive timeout: 0)
+debug1: Requesting no-more-sessions@openssh.com
+debug1: Entering interactive session.
+debug1: pledge: filesystem
+debug1: client_input_global_request: rtype hostkeys-00@openssh.com want_reply 0
+debug1: client_input_hostkeys: searching /root/.ssh/known_hosts for 134.209.241.242 / (none)
+debug1: client_input_hostkeys: searching /root/.ssh/known_hosts2 for 134.209.241.242 / (none)
+debug1: client_input_hostkeys: hostkeys file /root/.ssh/known_hosts2 does not exist
+debug1: client_input_hostkeys: no new or deprecated keys from server
+debug1: Remote: /root/.ssh/authorized_keys:4: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+debug1: Remote: /root/.ssh/authorized_keys:4: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+debug1: Sending environment.
+debug1: channel 0: setting env LANG = "C.UTF-8"
+debug1: Sending command: docker login -u ale161 -p [MASKED]
+debug1: pledge: fork
+WARNING! Using --password via the CLI is insecure. Use --password-stdin.
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+Login Succeeded
+debug1: client_input_channel_req: channel 0 rtype exit-status reply 0
+debug1: channel 0: free: client-session, nchannels 1
+Transferred: sent 3516, received 4164 bytes, in 2.0 seconds
+Bytes per second: sent 1787.9, received 2117.4
+debug1: Exit status 0
+$ echo "Stopping and removing existing containers..."
+Stopping and removing existing containers...
+$ ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@134.209.241.242 "docker ps -aq | xargs -r docker stop | xargs -r docker rm"
+Warning: Identity file /root/.ssh/id_rsa not accessible: No such file or directory.
+OpenSSH_9.2p1 Debian-2, OpenSSL 3.0.9 30 May 2023
+debug1: Reading configuration data /etc/ssh/ssh_config
+debug1: /etc/ssh/ssh_config line 19: include /etc/ssh/ssh_config.d/*.conf matched no files
+debug1: /etc/ssh/ssh_config line 21: Applying options for *
+debug1: Connecting to 134.209.241.242 [134.209.241.242] port 22.
+debug1: Connection established.
+debug1: identity file /root/.ssh/id_rsa type -1
+debug1: identity file /root/.ssh/id_rsa-cert type -1
+debug1: identity file /root/.ssh/id_ecdsa type -1
+debug1: identity file /root/.ssh/id_ecdsa-cert type -1
+debug1: identity file /root/.ssh/id_ecdsa_sk type -1
+debug1: identity file /root/.ssh/id_ecdsa_sk-cert type -1
+debug1: identity file /root/.ssh/id_ed25519 type -1
+debug1: identity file /root/.ssh/id_ed25519-cert type -1
+debug1: identity file /root/.ssh/id_ed25519_sk type -1
+debug1: identity file /root/.ssh/id_ed25519_sk-cert type -1
+debug1: identity file /root/.ssh/id_xmss type -1
+debug1: identity file /root/.ssh/id_xmss-cert type -1
+debug1: identity file /root/.ssh/id_dsa type -1
+debug1: identity file /root/.ssh/id_dsa-cert type -1
+debug1: Local version string SSH-2.0-OpenSSH_9.2p1 Debian-2
+debug1: Remote protocol version 2.0, remote software version OpenSSH_8.9p1 Ubuntu-3ubuntu0.3
+debug1: compat_banner: match: OpenSSH_8.9p1 Ubuntu-3ubuntu0.3 pat OpenSSH* compat 0x04000000
+debug1: Authenticating to 134.209.241.242:22 as 'root'
+debug1: load_hostkeys: fopen /root/.ssh/known_hosts2: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts2: No such file or directory
+debug1: SSH2_MSG_KEXINIT sent
+debug1: SSH2_MSG_KEXINIT received
+debug1: kex: algorithm: sntrup761x25519-sha512@openssh.com
+debug1: kex: host key algorithm: ssh-ed25519
+debug1: kex: server->client cipher: chacha20-poly1305@openssh.com MAC: <implicit> compression: none
+debug1: kex: client->server cipher: chacha20-poly1305@openssh.com MAC: <implicit> compression: none
+debug1: expecting SSH2_MSG_KEX_ECDH_REPLY
+debug1: SSH2_MSG_KEX_ECDH_REPLY received
+debug1: Server host key: ssh-ed25519 SHA256:ogCmVplh6b/KT7343bbA2lWxIdYy4GjLskLPWU/6AjM
+debug1: load_hostkeys: fopen /root/.ssh/known_hosts2: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts2: No such file or directory
+debug1: Host '134.209.241.242' is known and matches the ED25519 host key.
+debug1: Found key in /root/.ssh/known_hosts:3
+debug1: rekey out after 134217728 blocks
+debug1: SSH2_MSG_NEWKEYS sent
+debug1: expecting SSH2_MSG_NEWKEYS
+debug1: SSH2_MSG_NEWKEYS received
+debug1: rekey in after 134217728 blocks
+debug1: get_agent_identities: bound agent to hostkey
+debug1: get_agent_identities: agent returned 1 keys
+debug1: Will attempt key: ale.black161+nopass@gmail.com ED25519 SHA256:DCqfPbSLiL6NJ8qzoeTToiqkoRJ/J1fAt5CnOMB30cQ agent
+debug1: Will attempt key: /root/.ssh/id_rsa 
+debug1: Will attempt key: /root/.ssh/id_ecdsa 
+debug1: Will attempt key: /root/.ssh/id_ecdsa_sk 
+debug1: Will attempt key: /root/.ssh/id_ed25519 
+debug1: Will attempt key: /root/.ssh/id_ed25519_sk 
+debug1: Will attempt key: /root/.ssh/id_xmss 
+debug1: Will attempt key: /root/.ssh/id_dsa 
+debug1: SSH2_MSG_EXT_INFO received
+debug1: kex_input_ext_info: server-sig-algs=<ssh-ed25519,sk-ssh-ed25519@openssh.com,ssh-rsa,rsa-sha2-256,rsa-sha2-512,ssh-dss,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ecdsa-sha2-nistp256@openssh.com,webauthn-sk-ecdsa-sha2-nistp256@openssh.com>
+debug1: kex_input_ext_info: publickey-hostbound@openssh.com=<0>
+debug1: SSH2_MSG_SERVICE_ACCEPT received
+debug1: Authentications that can continue: publickey
+debug1: Next authentication method: publickey
+debug1: Offering public key: ale.black161+nopass@gmail.com ED25519 SHA256:DCqfPbSLiL6NJ8qzoeTToiqkoRJ/J1fAt5CnOMB30cQ agent
+debug1: Server accepts key: ale.black161+nopass@gmail.com ED25519 SHA256:DCqfPbSLiL6NJ8qzoeTToiqkoRJ/J1fAt5CnOMB30cQ agent
+Authenticated to 134.209.241.242 ([134.209.241.242]:22) using "publickey".
+debug1: channel 0: new session [client-session] (inactive timeout: 0)
+debug1: Requesting no-more-sessions@openssh.com
+debug1: Entering interactive session.
+debug1: pledge: filesystem
+debug1: client_input_global_request: rtype hostkeys-00@openssh.com want_reply 0
+debug1: client_input_hostkeys: searching /root/.ssh/known_hosts for 134.209.241.242 / (none)
+debug1: client_input_hostkeys: searching /root/.ssh/known_hosts2 for 134.209.241.242 / (none)
+debug1: client_input_hostkeys: hostkeys file /root/.ssh/known_hosts2 does not exist
+debug1: client_input_hostkeys: no new or deprecated keys from server
+debug1: Remote: /root/.ssh/authorized_keys:4: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+debug1: Remote: /root/.ssh/authorized_keys:4: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+debug1: Sending environment.
+debug1: channel 0: setting env LANG = "C.UTF-8"
+debug1: Sending command: docker ps -aq | xargs -r docker stop | xargs -r docker rm
+debug1: pledge: fork
+5166f87d12d3
+debug1: client_input_channel_req: channel 0 rtype exit-status reply 0
+debug1: client_input_channel_req: channel 0 rtype eow@openssh.com reply 0
+debug1: channel 0: free: client-session, nchannels 1
+Transferred: sent 3508, received 3856 bytes, in 0.4 seconds
+Bytes per second: sent 8049.3, received 8847.8
+debug1: Exit status 0
+$ echo "Pulling and running the new Docker image..."
+Pulling and running the new Docker image...
+$ ssh -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa root@134.209.241.242 "docker run -d -p 5000:5000 $IMAGE_NAME:$IMAGE_TAG"
+Warning: Identity file /root/.ssh/id_rsa not accessible: No such file or directory.
+OpenSSH_9.2p1 Debian-2, OpenSSL 3.0.9 30 May 2023
+debug1: Reading configuration data /etc/ssh/ssh_config
+debug1: /etc/ssh/ssh_config line 19: include /etc/ssh/ssh_config.d/*.conf matched no files
+debug1: /etc/ssh/ssh_config line 21: Applying options for *
+debug1: Connecting to 134.209.241.242 [134.209.241.242] port 22.
+debug1: Connection established.
+debug1: identity file /root/.ssh/id_rsa type -1
+debug1: identity file /root/.ssh/id_rsa-cert type -1
+debug1: identity file /root/.ssh/id_ecdsa type -1
+debug1: identity file /root/.ssh/id_ecdsa-cert type -1
+debug1: identity file /root/.ssh/id_ecdsa_sk type -1
+debug1: identity file /root/.ssh/id_ecdsa_sk-cert type -1
+debug1: identity file /root/.ssh/id_ed25519 type -1
+debug1: identity file /root/.ssh/id_ed25519-cert type -1
+debug1: identity file /root/.ssh/id_ed25519_sk type -1
+debug1: identity file /root/.ssh/id_ed25519_sk-cert type -1
+debug1: identity file /root/.ssh/id_xmss type -1
+debug1: identity file /root/.ssh/id_xmss-cert type -1
+debug1: identity file /root/.ssh/id_dsa type -1
+debug1: identity file /root/.ssh/id_dsa-cert type -1
+debug1: Local version string SSH-2.0-OpenSSH_9.2p1 Debian-2
+debug1: Remote protocol version 2.0, remote software version OpenSSH_8.9p1 Ubuntu-3ubuntu0.3
+debug1: compat_banner: match: OpenSSH_8.9p1 Ubuntu-3ubuntu0.3 pat OpenSSH* compat 0x04000000
+debug1: Authenticating to 134.209.241.242:22 as 'root'
+debug1: load_hostkeys: fopen /root/.ssh/known_hosts2: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts2: No such file or directory
+debug1: SSH2_MSG_KEXINIT sent
+debug1: SSH2_MSG_KEXINIT received
+debug1: kex: algorithm: sntrup761x25519-sha512@openssh.com
+debug1: kex: host key algorithm: ssh-ed25519
+debug1: kex: server->client cipher: chacha20-poly1305@openssh.com MAC: <implicit> compression: none
+debug1: kex: client->server cipher: chacha20-poly1305@openssh.com MAC: <implicit> compression: none
+debug1: expecting SSH2_MSG_KEX_ECDH_REPLY
+debug1: SSH2_MSG_KEX_ECDH_REPLY received
+debug1: Server host key: ssh-ed25519 SHA256:ogCmVplh6b/KT7343bbA2lWxIdYy4GjLskLPWU/6AjM
+debug1: load_hostkeys: fopen /root/.ssh/known_hosts2: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts: No such file or directory
+debug1: load_hostkeys: fopen /etc/ssh/ssh_known_hosts2: No such file or directory
+debug1: Host '134.209.241.242' is known and matches the ED25519 host key.
+debug1: Found key in /root/.ssh/known_hosts:3
+debug1: rekey out after 134217728 blocks
+debug1: SSH2_MSG_NEWKEYS sent
+debug1: expecting SSH2_MSG_NEWKEYS
+debug1: SSH2_MSG_NEWKEYS received
+debug1: rekey in after 134217728 blocks
+debug1: get_agent_identities: bound agent to hostkey
+debug1: get_agent_identities: agent returned 1 keys
+debug1: Will attempt key: ale.black161+nopass@gmail.com ED25519 SHA256:DCqfPbSLiL6NJ8qzoeTToiqkoRJ/J1fAt5CnOMB30cQ agent
+debug1: Will attempt key: /root/.ssh/id_rsa 
+debug1: Will attempt key: /root/.ssh/id_ecdsa 
+debug1: Will attempt key: /root/.ssh/id_ecdsa_sk 
+debug1: Will attempt key: /root/.ssh/id_ed25519 
+debug1: Will attempt key: /root/.ssh/id_ed25519_sk 
+debug1: Will attempt key: /root/.ssh/id_xmss 
+debug1: Will attempt key: /root/.ssh/id_dsa 
+debug1: SSH2_MSG_EXT_INFO received
+debug1: kex_input_ext_info: server-sig-algs=<ssh-ed25519,sk-ssh-ed25519@openssh.com,ssh-rsa,rsa-sha2-256,rsa-sha2-512,ssh-dss,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,sk-ecdsa-sha2-nistp256@openssh.com,webauthn-sk-ecdsa-sha2-nistp256@openssh.com>
+debug1: kex_input_ext_info: publickey-hostbound@openssh.com=<0>
+debug1: SSH2_MSG_SERVICE_ACCEPT received
+debug1: Authentications that can continue: publickey
+debug1: Next authentication method: publickey
+debug1: Offering public key: ale.black161+nopass@gmail.com ED25519 SHA256:DCqfPbSLiL6NJ8qzoeTToiqkoRJ/J1fAt5CnOMB30cQ agent
+debug1: Server accepts key: ale.black161+nopass@gmail.com ED25519 SHA256:DCqfPbSLiL6NJ8qzoeTToiqkoRJ/J1fAt5CnOMB30cQ agent
+Authenticated to 134.209.241.242 ([134.209.241.242]:22) using "publickey".
+debug1: channel 0: new session [client-session] (inactive timeout: 0)
+debug1: Requesting no-more-sessions@openssh.com
+debug1: Entering interactive session.
+debug1: pledge: filesystem
+debug1: client_input_global_request: rtype hostkeys-00@openssh.com want_reply 0
+debug1: client_input_hostkeys: searching /root/.ssh/known_hosts for 134.209.241.242 / (none)
+debug1: client_input_hostkeys: searching /root/.ssh/known_hosts2 for 134.209.241.242 / (none)
+debug1: client_input_hostkeys: hostkeys file /root/.ssh/known_hosts2 does not exist
+debug1: client_input_hostkeys: no new or deprecated keys from server
+debug1: Remote: /root/.ssh/authorized_keys:4: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+debug1: Remote: /root/.ssh/authorized_keys:4: key options: agent-forwarding port-forwarding pty user-rc x11-forwarding
+debug1: Sending environment.
+debug1: channel 0: setting env LANG = "C.UTF-8"
+debug1: Sending command: docker run -d -p 5000:5000 ale161/karantzoulis-final-project:python-app-1.0
+debug1: pledge: fork
+Unable to find image 'ale161/karantzoulis-final-project:python-app-1.0' locally
+python-app-1.0: Pulling from ale161/karantzoulis-final-project
+8b91b88d5577: Pulling fs layer
+824416e23423: Pulling fs layer
+8d53da260408: Pulling fs layer
+84c8c79126f6: Pulling fs layer
+2e1c130fa3ec: Pulling fs layer
+93eb42c1aa55: Pulling fs layer
+4ca05ee58976: Pulling fs layer
+d7431213c6cc: Pulling fs layer
+98047b7f8e31: Pulling fs layer
+2ea297adbca2: Pulling fs layer
+84c8c79126f6: Waiting
+2e1c130fa3ec: Waiting
+93eb42c1aa55: Waiting
+4ca05ee58976: Waiting
+d7431213c6cc: Waiting
+98047b7f8e31: Waiting
+2ea297adbca2: Waiting
+824416e23423: Verifying Checksum
+824416e23423: Download complete
+8d53da260408: Verifying Checksum
+8d53da260408: Download complete
+84c8c79126f6: Verifying Checksum
+84c8c79126f6: Download complete
+93eb42c1aa55: Verifying Checksum
+93eb42c1aa55: Download complete
+2e1c130fa3ec: Verifying Checksum
+2e1c130fa3ec: Download complete
+4ca05ee58976: Verifying Checksum
+4ca05ee58976: Download complete
+8b91b88d5577: Verifying Checksum
+8b91b88d5577: Download complete
+2ea297adbca2: Verifying Checksum
+2ea297adbca2: Download complete
+98047b7f8e31: Verifying Checksum
+98047b7f8e31: Download complete
+d7431213c6cc: Verifying Checksum
+d7431213c6cc: Download complete
+8b91b88d5577: Pull complete
+824416e23423: Pull complete
+8d53da260408: Pull complete
+84c8c79126f6: Pull complete
+2e1c130fa3ec: Pull complete
+93eb42c1aa55: Pull complete
+4ca05ee58976: Pull complete
+d7431213c6cc: Pull complete
+98047b7f8e31: Pull complete
+2ea297adbca2: Pull complete
+Digest: sha256:390ca23bf6988af92ab100350d291c16c85e710b623bc1ed963e088916991f60
+Status: Downloaded newer image for ale161/karantzoulis-final-project:python-app-1.0
+c3d7cb704441f0062d518de752df45abc82d2148dae8731fc2e1a67c85af93af
+debug1: client_input_channel_req: channel 0 rtype exit-status reply 0
+debug1: channel 0: free: client-session, nchannels 1
+Transferred: sent 3532, received 7936 bytes, in 10.6 seconds
+Bytes per second: sent 331.9, received 745.8
+debug1: Exit status 0
 Cleaning up project directory and file based variables
-00:00
-ERROR: Job failed: exit code 1
+00:01
+Job succeeded
 
