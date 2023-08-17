@@ -34,7 +34,7 @@ deploy:
         - chmod 400 $SSH_KEY
     script:
         - echo "Logging in to the remote server..."
-        - ssh -o StrictHostKeyChecking=no -i $SSH_KEY root@134.209.241.242 "docker login -u $REGISTRY_USER -p $REGISTRY_PASS"
+        - ssh -v -o StrictHostKeyChecking=no -i $SSH_KEY root@134.209.241.242 "docker login -u $REGISTRY_USER -p $REGISTRY_PASS"
         - echo "Stopping and removing existing containers..."
         - ssh -o StrictHostKeyChecking=no -i $SSH_KEY root@134.209.241.242 "docker ps -aq | xargs -r docker stop | xargs -r docker rm"
         - echo "Pulling and running the new Docker image..."
